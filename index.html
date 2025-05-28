@@ -215,9 +215,88 @@
             transform: translateY(-1px);
         }
         
-        .download-section {
+        .upload-section {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(20px);
+        }
+        
+        .upload-area {
             text-align: center;
-            margin-top: 30px;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            border: 2px dashed #667eea;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: #f8f9ff;
+        }
+        
+        .upload-area h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+        
+        .upload-area p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .upload-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .upload-info {
+            margin-top: 15px;
+        }
+        
+        .upload-info small {
+            color: #999;
+            font-size: 12px;
+        }
+        
+        .upload-status {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: 500;
+            white-space: pre-line;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        
+        .upload-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .upload-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
         
         .download-btn {
@@ -296,14 +375,29 @@
             background: #45a049;
         }
         
-        .cancel-btn:hover {
-            background: #777;
+        .download-section {
+            text-align: center;
+            margin-top: 30px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>FAQ情報管理ツール</h1>
+        
+        <div class="upload-section">
+            <div class="upload-area">
+                <h3>ファイルアップロード</h3>
+                <p>既存のCSV/Excelファイルをアップロードして続きから編集できます</p>
+                <input type="file" id="csv-file" accept=".csv,.xlsx,.xls" style="display: none;" onchange="handleFileUpload(event)">
+                <button class="upload-btn" onclick="document.getElementById('csv-file').click()">ファイルを選択（CSV/Excel）</button>
+                <div class="upload-info">
+                    <small>※ 対応形式: CSV, Excel (.xlsx, .xls)</small>
+                    <br>
+                    <small>※ 必須列: カテゴリ,質問,回答,リンク,登録日</small>
+                </div>
+            </div>
+        </div>
         
         <div class="tabs">
             <button class="tab active" onclick="switchTab('basic')">基本操作・設定</button>
@@ -345,6 +439,7 @@
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
         const categories = {
             'basic': '基本操作・設定',
@@ -559,8 +654,266 @@
             }
         });
 
-        // 初期表示
-        displayRecords();
+        // ファイルアップロード処理（CSV/Excel対応）
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const fileName = file.name.toLowerCase();
+            const fileExtension = fileName.split('.').pop();
+            
+            if (fileExtension === 'csv') {
+                handleCSVUpload(file);
+            } else if (fileExtension === 'xlsx' || fileExtension === 'xls') {
+                handleExcelUpload(file);
+            } else {
+                showUploadStatus('サポートされていないファイル形式です（CSV, Excel のみ対応）', 'error');
+            }
+        }
+
+        // CSVアップロード処理
+        function handleCSVUpload(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    parseCSVData(e.target.result);
+                } catch (error) {
+                    showUploadStatus('CSVファイルの読み込みに失敗しました: ' + error.message, 'error');
+                }
+            };
+            reader.readAsText(file, 'UTF-8');
+        }
+
+        // Excelアップロード処理
+        function handleExcelUpload(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    // SheetJSを使用してExcelファイルを解析
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    
+                    // 最初のシートを取得
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    
+                    // CSVに変換
+                    const csvData = XLSX.utils.sheet_to_csv(worksheet);
+                    parseCSVData(csvData);
+                } catch (error) {
+                    showUploadStatus('Excelファイルの読み込みに失敗しました: ' + error.message, 'error');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // CSV解析とデータ統合
+        function parseCSVData(csvText) {
+            const lines = csvText.split('\n').filter(line => line.trim());
+            if (lines.length < 2) {
+                showUploadStatus('ファイルが空か、ヘッダーのみです', 'error');
+                return;
+            }
+            
+            // ヘッダー行のチェック
+            const headerLine = lines[0];
+            const headers = parseCSVLine(headerLine).map(h => h.replace(/"/g, '').trim());
+            
+            const requiredHeaders = ['カテゴリ', '質問', '回答', 'リンク', '登録日'];
+            const headerValidation = validateHeaders(headers, requiredHeaders);
+            
+            if (!headerValidation.isValid) {
+                showUploadStatus(
+                    `ヘッダー列が正しくありません！\n` +
+                    `必須: ${requiredHeaders.join(', ')}\n` +
+                    `実際: ${headers.join(', ')}\n` +
+                    `エラー詳細: ${headerValidation.error}`, 
+                    'error'
+                );
+                return;
+            }
+            
+            // データ行を処理
+            const dataLines = lines.slice(1);
+            let importedCount = 0;
+            let errorCount = 0;
+            let errorDetails = [];
+            
+            dataLines.forEach((line, index) => {
+                try {
+                    const columns = parseCSVLine(line);
+                    if (columns.length < 3) {
+                        errorCount++;
+                        errorDetails.push(`行${index + 2}: データが不足しています`);
+                        return;
+                    }
+                    
+                    const [category, question, answer, link, createdAt] = columns.map(col => 
+                        col.replace(/^"|"$/g, '').trim()
+                    );
+                    
+                    // 必須フィールドチェック
+                    if (!category || !question || !answer) {
+                        errorCount++;
+                        errorDetails.push(`行${index + 2}: カテゴリ、質問、回答は必須です`);
+                        return;
+                    }
+                    
+                    // カテゴリ名から内部キーを取得
+                    const categoryKey = getCategoryKey(category);
+                    if (!categoryKey) {
+                        errorCount++;
+                        errorDetails.push(`行${index + 2}: 無効なカテゴリ「${category}」`);
+                        return;
+                    }
+                    
+                    // 重複チェック（質問で判定）
+                    const exists = faqData[categoryKey].some(record => 
+                        record.question.trim() === question.trim()
+                    );
+                    
+                    if (!exists) {
+                        const record = {
+                            id: Date.now() + index + Math.random() * 1000, // 重複しないID生成
+                            category: category,
+                            question: question,
+                            answer: answer,
+                            link: link || '',
+                            createdAt: createdAt || new Date().toLocaleString('ja-JP')
+                        };
+                        
+                        faqData[categoryKey].push(record);
+                        importedCount++;
+                    } else {
+                        errorDetails.push(`行${index + 2}: 重複する質問「${question}」`);
+                    }
+                } catch (error) {
+                    errorCount++;
+                    errorDetails.push(`行${index + 2}: 解析エラー - ${error.message}`);
+                }
+            });
+            
+            // 現在のタブを更新
+            displayRecords();
+            
+            // 結果表示
+            let message = `${importedCount}件のデータをインポートしました`;
+            if (errorCount > 0) {
+                message += `\n（${errorCount}件のエラーをスキップ）`;
+                if (errorDetails.length > 0) {
+                    message += `\n\nエラー詳細:\n${errorDetails.slice(0, 5).join('\n')}`;
+                    if (errorDetails.length > 5) {
+                        message += `\n...他${errorDetails.length - 5}件`;
+                    }
+                }
+            }
+            showUploadStatus(message, importedCount > 0 ? 'success' : 'error');
+            
+            // ファイル入力をクリア
+            document.getElementById('csv-file').value = '';
+        }
+
+        // ヘッダー検証
+        function validateHeaders(actualHeaders, requiredHeaders) {
+            const result = { isValid: true, error: '' };
+            
+            // 必須列の存在チェック
+            const missingHeaders = requiredHeaders.filter(required => 
+                !actualHeaders.some(actual => actual === required)
+            );
+            
+            if (missingHeaders.length > 0) {
+                result.isValid = false;
+                result.error = `不足している列: ${missingHeaders.join(', ')}`;
+                return result;
+            }
+            
+            // 列数チェック
+            if (actualHeaders.length < requiredHeaders.length) {
+                result.isValid = false;
+                result.error = `列数が不足しています（最低${requiredHeaders.length}列必要）`;
+                return result;
+            }
+            
+            // 順序チェック（推奨）
+            const orderMismatch = requiredHeaders.some((required, index) => 
+                actualHeaders[index] !== required
+            );
+            
+            if (orderMismatch) {
+                result.isValid = false;
+                result.error = `列の順序が正しくありません。正しい順序: ${requiredHeaders.join(', ')}`;
+                return result;
+            }
+            
+            return result;
+        }
+
+        // CSV行解析（カンマ区切り、ダブルクォート対応）
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                const nextChar = line[i + 1];
+                
+                if (char === '"') {
+                    if (inQuotes && nextChar === '"') {
+                        // エスケープされたダブルクォート
+                        current += '"';
+                        i++; // 次の文字をスキップ
+                    } else {
+                        // クォートの開始/終了
+                        inQuotes = !inQuotes;
+                    }
+                } else if (char === ',' && !inQuotes) {
+                    // 区切り文字
+                    result.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            
+            // 最後の列を追加
+            result.push(current.trim());
+            
+            return result;
+        }
+
+        // カテゴリ名から内部キーを取得
+        function getCategoryKey(categoryName) {
+            for (const [key, value] of Object.entries(categories)) {
+                if (value === categoryName.trim()) {
+                    return key;
+                }
+            }
+            return null;
+        }
+
+        // アップロード状況表示
+        function showUploadStatus(message, type) {
+            // 既存のステータスを削除
+            const existingStatus = document.querySelector('.upload-status');
+            if (existingStatus) {
+                existingStatus.remove();
+            }
+            
+            const uploadArea = document.querySelector('.upload-area');
+            const statusDiv = document.createElement('div');
+            statusDiv.className = `upload-status upload-${type}`;
+            statusDiv.textContent = message;
+            uploadArea.appendChild(statusDiv);
+            
+            // 3秒後に自動削除（エラーの場合は5秒）
+            setTimeout(() => {
+                if (statusDiv.parentNode) {
+                    statusDiv.remove();
+                }
+            }, type === 'error' ? 5000 : 3000);
+        }
     </script>
 </body>
 </html>
