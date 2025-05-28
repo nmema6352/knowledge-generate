@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ情報管理ツール</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .tabs {
+            display: flex;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px 15px 0 0;
+            padding: 0;
+            margin-bottom: 0;
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-right: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .tab:last-child {
+            border-right: none;
+        }
+        
+        .tab:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+        
+        .tab.active {
+            background: rgba(255,255,255,0.3);
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .tab-content {
+            background: rgba(255,255,255,0.95);
+            border-radius: 0 0 15px 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(20px);
+        }
+        
+        .input-section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .add-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .add-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .records-section {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+        
+        .records-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .record {
+            padding: 20px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.3s ease;
+        }
+        
+        .record:hover {
+            background: #f8f9ff;
+        }
+        
+        .record:last-child {
+            border-bottom: none;
+        }
+        
+        .record-item {
+            margin-bottom: 10px;
+        }
+        
+        .record-item strong {
+            color: #555;
+            display: inline-block;
+            width: 80px;
+            font-weight: 600;
+        }
+        
+        .record-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .edit-btn, .delete-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .edit-btn {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .edit-btn:hover {
+            background: #45a049;
+            transform: translateY(-1px);
+        }
+        
+        .delete-btn {
+            background: #f44336;
+            color: white;
+        }
+        
+        .delete-btn:hover {
+            background: #da190b;
+            transform: translateY(-1px);
+        }
+        
+        .download-section {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .download-btn {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-size: 16px;
+        }
+        
+        .count {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        
+        .edit-form {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 2px solid #667eea;
+        }
+        
+        .edit-form .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .edit-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .save-btn, .cancel-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .save-btn {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .cancel-btn {
+            background: #999;
+            color: white;
+        }
+        
+        .save-btn:hover {
+            background: #45a049;
+        }
+        
+        .cancel-btn:hover {
+            background: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>FAQ情報管理ツール</h1>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('basic')">基本操作・設定</button>
+            <button class="tab" onclick="switchTab('features')">機能詳細</button>
+            <button class="tab" onclick="switchTab('trouble')">トラブル・不具合</button>
+            <button class="tab" onclick="switchTab('support')">修理・保証・サポート</button>
+            <button class="tab" onclick="switchTab('general')">その他・一般情報</button>
+        </div>
+        
+        <div class="tab-content">
+            <div class="input-section">
+                <div class="form-group">
+                    <label for="question">質問:</label>
+                    <input type="text" id="question" placeholder="質問を入力してください">
+                </div>
+                <div class="form-group">
+                    <label for="answer">回答:</label>
+                    <textarea id="answer" placeholder="回答を入力してください"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="link">リンク:</label>
+                    <input type="url" id="link" placeholder="関連リンクを入力してください（任意）">
+                </div>
+                <button class="add-btn" onclick="addRecord()">登録</button>
+            </div>
+            
+            <div class="records-section">
+                <div class="records-header">
+                    登録済みデータ <span class="count" id="record-count">0件</span>
+                </div>
+                <div id="records-list">
+                    <div class="empty-state">まだデータが登録されていません</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="download-section">
+            <button class="download-btn" onclick="downloadCSV()">CSVダウンロード</button>
+        </div>
+    </div>
+
+    <script>
+        const categories = {
+            'basic': '基本操作・設定',
+            'features': '機能詳細',
+            'trouble': 'トラブル・不具合',
+            'support': '修理・保証・サポート',
+            'general': 'その他・一般情報'
+        };
+        
+        let currentCategory = 'basic';
+        let faqData = {
+            basic: [],
+            features: [],
+            trouble: [],
+            support: [],
+            general: []
+        };
+        let editingId = null;
+
+        // タブ切り替え
+        function switchTab(category) {
+            currentCategory = category;
+            
+            // タブの見た目を更新
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // レコード表示を更新
+            displayRecords();
+            
+            // 入力フォームをクリア
+            clearForm();
+        }
+
+        // レコード追加
+        function addRecord() {
+            const question = document.getElementById('question').value.trim();
+            const answer = document.getElementById('answer').value.trim();
+            const link = document.getElementById('link').value.trim();
+            
+            if (!question || !answer) {
+                alert('質問と回答は必須です');
+                return;
+            }
+            
+            const record = {
+                id: Date.now(),
+                category: categories[currentCategory],
+                question: question,
+                answer: answer,
+                link: link,
+                createdAt: new Date().toLocaleString('ja-JP')
+            };
+            
+            faqData[currentCategory].push(record);
+            displayRecords();
+            clearForm();
+        }
+
+        // フォームクリア
+        function clearForm() {
+            document.getElementById('question').value = '';
+            document.getElementById('answer').value = '';
+            document.getElementById('link').value = '';
+        }
+
+        // レコード表示
+        function displayRecords() {
+            const recordsList = document.getElementById('records-list');
+            const records = faqData[currentCategory];
+            const count = records.length;
+            
+            document.getElementById('record-count').textContent = `${count}件`;
+            
+            if (records.length === 0) {
+                recordsList.innerHTML = '<div class="empty-state">まだデータが登録されていません</div>';
+                return;
+            }
+            
+            recordsList.innerHTML = records.map(record => `
+                <div class="record" id="record-${record.id}">
+                    <div class="record-item">
+                        <strong>質問:</strong> ${record.question}
+                    </div>
+                    <div class="record-item">
+                        <strong>回答:</strong> ${record.answer}
+                    </div>
+                    ${record.link ? `<div class="record-item"><strong>リンク:</strong> <a href="${record.link}" target="_blank">${record.link}</a></div>` : ''}
+                    <div class="record-item">
+                        <strong>登録日:</strong> ${record.createdAt}
+                    </div>
+                    <div class="record-actions">
+                        <button class="edit-btn" onclick="editRecord(${record.id})">編集</button>
+                        <button class="delete-btn" onclick="deleteRecord(${record.id})">削除</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // レコード削除
+        function deleteRecord(id) {
+            if (confirm('このレコードを削除しますか？')) {
+                faqData[currentCategory] = faqData[currentCategory].filter(record => record.id !== id);
+                displayRecords();
+            }
+        }
+
+        // レコード編集
+        function editRecord(id) {
+            const record = faqData[currentCategory].find(r => r.id === id);
+            if (!record) return;
+            
+            const recordElement = document.getElementById(`record-${id}`);
+            editingId = id;
+            
+            recordElement.innerHTML = `
+                <div class="edit-form">
+                    <div class="form-group">
+                        <label>質問:</label>
+                        <input type="text" id="edit-question" value="${record.question}">
+                    </div>
+                    <div class="form-group">
+                        <label>回答:</label>
+                        <textarea id="edit-answer">${record.answer}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>リンク:</label>
+                        <input type="url" id="edit-link" value="${record.link || ''}">
+                    </div>
+                    <div class="edit-actions">
+                        <button class="save-btn" onclick="saveRecord(${id})">保存</button>
+                        <button class="cancel-btn" onclick="cancelEdit()">キャンセル</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 編集保存
+        function saveRecord(id) {
+            const question = document.getElementById('edit-question').value.trim();
+            const answer = document.getElementById('edit-answer').value.trim();
+            const link = document.getElementById('edit-link').value.trim();
+            
+            if (!question || !answer) {
+                alert('質問と回答は必須です');
+                return;
+            }
+            
+            const recordIndex = faqData[currentCategory].findIndex(r => r.id === id);
+            if (recordIndex !== -1) {
+                faqData[currentCategory][recordIndex] = {
+                    ...faqData[currentCategory][recordIndex],
+                    question: question,
+                    answer: answer,
+                    link: link
+                };
+            }
+            
+            editingId = null;
+            displayRecords();
+        }
+
+        // 編集キャンセル
+        function cancelEdit() {
+            editingId = null;
+            displayRecords();
+        }
+
+        // CSVダウンロード
+        function downloadCSV() {
+            let csvContent = 'カテゴリ,質問,回答,リンク,登録日\n';
+            
+            Object.keys(faqData).forEach(categoryKey => {
+                faqData[categoryKey].forEach(record => {
+                    const row = [
+                        `"${record.category}"`,
+                        `"${record.question.replace(/"/g, '""')}"`,
+                        `"${record.answer.replace(/"/g, '""')}"`,
+                        `"${(record.link || '').replace(/"/g, '""')}"`,
+                        `"${record.createdAt}"`
+                    ].join(',');
+                    csvContent += row + '\n';
+                });
+            });
+            
+            // BOMを追加してExcelで文字化けしないようにする
+            const bom = '\uFEFF';
+            const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `faq_data_${new Date().toISOString().split('T')[0]}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+
+        // エンターキーで登録
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' && event.ctrlKey) {
+                if (editingId) {
+                    saveRecord(editingId);
+                } else {
+                    addRecord();
+                }
+            }
+        });
+
+        // 初期表示
+        displayRecords();
+    </script>
+</body>
+</html>
