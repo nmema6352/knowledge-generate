@@ -32,7 +32,7 @@
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
         
-        .tabs {
+        .main-tabs {
             display: flex;
             background: rgba(255,255,255,0.1);
             border-radius: 15px 15px 0 0;
@@ -42,40 +42,85 @@
             overflow: hidden;
         }
         
-        .tab {
+        .main-tab {
             flex: 1;
-            padding: 15px 20px;
+            padding: 20px 25px;
             background: rgba(255,255,255,0.1);
             border: none;
             color: white;
             cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
+            font-size: 16px;
+            font-weight: 600;
             transition: all 0.3s ease;
             border-right: 1px solid rgba(255,255,255,0.2);
         }
         
-        .tab:last-child {
+        .main-tab:last-child {
             border-right: none;
         }
         
-        .tab:hover {
+        .main-tab:hover {
             background: rgba(255,255,255,0.2);
             transform: translateY(-2px);
         }
         
-        .tab.active {
+        .main-tab.active {
             background: rgba(255,255,255,0.3);
             color: #333;
-            font-weight: 600;
+            font-weight: 700;
         }
         
-        .tab-content {
+        .main-tab-content {
             background: rgba(255,255,255,0.95);
             border-radius: 0 0 15px 15px;
             padding: 30px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             backdrop-filter: blur(20px);
+            display: none;
+        }
+        
+        .main-tab-content.active {
+            display: block;
+        }
+        
+        .tabs {
+            display: flex;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 10px;
+            padding: 5px;
+            margin-bottom: 20px;
+            gap: 5px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 12px 15px;
+            background: transparent;
+            border: none;
+            color: #667eea;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-radius: 5px;
+        }
+        
+        .tab:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .tab.active {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
         }
         
         .input-section {
@@ -120,7 +165,7 @@
             min-height: 80px;
         }
         
-        .add-btn {
+        .add-btn, .process-btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
@@ -133,7 +178,7 @@
             margin-top: 10px;
         }
         
-        .add-btn:hover {
+        .add-btn:hover, .process-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
@@ -216,17 +261,16 @@
         }
         
         .upload-section {
-            background: rgba(255,255,255,0.95);
-            border-radius: 15px;
+            background: white;
+            border-radius: 10px;
             padding: 30px;
             margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            backdrop-filter: blur(20px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         
         .upload-area {
             text-align: center;
-            background: white;
+            background: #f8f9ff;
             padding: 30px;
             border-radius: 10px;
             border: 2px dashed #667eea;
@@ -235,7 +279,7 @@
         
         .upload-area:hover {
             border-color: #764ba2;
-            background: #f8f9ff;
+            background: #f0f2ff;
         }
         
         .upload-area h3 {
@@ -379,68 +423,203 @@
             text-align: center;
             margin-top: 30px;
         }
+        
+        /* ベクトル化タブ用のスタイル */
+        .vector-section {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .vector-info {
+            background: #f8f9ff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .vector-info h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .vector-info p {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .success-message.show {
+            display: block;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>FAQ情報管理ツール</h1>
         
-        <div class="upload-section">
-            <div class="upload-area">
-                <h3>ファイルアップロード</h3>
-                <p>既存のCSV/Excelファイルをアップロードして続きから編集できます</p>
-                <input type="file" id="csv-file" accept=".csv,.xlsx,.xls" style="display: none;" onchange="handleFileUpload(event)">
-                <button class="upload-btn" onclick="document.getElementById('csv-file').click()">ファイルを選択（CSV/Excel）</button>
-                <div class="upload-info">
-                    <small>※ 対応形式: CSV, Excel (.xlsx, .xls)</small>
-                    <br>
-                    <small>※ 必須列: カテゴリ,質問,回答,リンク,登録日</small>
-                </div>
-            </div>
+        <div class="main-tabs">
+            <button class="main-tab active" onclick="switchMainTab('faq')">FAQ管理</button>
+            <button class="main-tab" onclick="switchMainTab('vector')">ベクトル化処理</button>
         </div>
         
-        <div class="tabs">
-            <button class="tab active" onclick="switchTab('basic')">基本操作・設定</button>
-            <button class="tab" onclick="switchTab('features')">機能詳細</button>
-            <button class="tab" onclick="switchTab('trouble')">トラブル・不具合</button>
-            <button class="tab" onclick="switchTab('support')">修理・保証・サポート</button>
-            <button class="tab" onclick="switchTab('general')">その他・一般情報</button>
-        </div>
-        
-        <div class="tab-content">
-            <div class="input-section">
-                <div class="form-group">
-                    <label for="question">質問:</label>
-                    <input type="text" id="question" placeholder="質問を入力してください">
+        <!-- FAQ管理タブ -->
+        <div id="faq-tab" class="main-tab-content active">
+            <div class="upload-section">
+                <div class="upload-area">
+                    <h3>ファイルアップロード</h3>
+                    <p>既存のCSV/Excelファイルをアップロードして続きから編集できます</p>
+                    <input type="file" id="csv-file" accept=".csv,.xlsx,.xls" style="display: none;" onchange="handleFileUpload(event)">
+                    <button class="upload-btn" onclick="document.getElementById('csv-file').click()">ファイルを選択（CSV/Excel）</button>
+                    <div class="upload-info">
+                        <small>※ 対応形式: CSV, Excel (.xlsx, .xls)</small>
+                        <br>
+                        <small>※ 必須列: カテゴリ,質問,回答,リンク,登録日</small>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="answer">回答:</label>
-                    <textarea id="answer" placeholder="回答を入力してください"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="link">リンク:</label>
-                    <input type="url" id="link" placeholder="関連リンクを入力してください（任意）">
-                </div>
-                <button class="add-btn" onclick="addRecord()">登録</button>
             </div>
             
-            <div class="records-section">
-                <div class="records-header">
-                    登録済みデータ <span class="count" id="record-count">0件</span>
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('basic')">基本操作・設定</button>
+                <button class="tab" onclick="switchTab('features')">機能詳細</button>
+                <button class="tab" onclick="switchTab('trouble')">トラブル・不具合</button>
+                <button class="tab" onclick="switchTab('support')">修理・保証・サポート</button>
+                <button class="tab" onclick="switchTab('general')">その他・一般情報</button>
+            </div>
+            
+            <div class="tab-content active">
+                <div class="input-section">
+                    <div class="form-group">
+                        <label for="question">質問:</label>
+                        <input type="text" id="question" placeholder="質問を入力してください">
+                    </div>
+                    <div class="form-group">
+                        <label for="answer">回答:</label>
+                        <textarea id="answer" placeholder="回答を入力してください"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="link">リンク:</label>
+                        <input type="url" id="link" placeholder="関連リンクを入力してください（任意）">
+                    </div>
+                    <button class="add-btn" onclick="addRecord()">登録</button>
                 </div>
-                <div id="records-list">
-                    <div class="empty-state">まだデータが登録されていません</div>
+                
+                <div class="records-section">
+                    <div class="records-header">
+                        登録済みデータ <span class="count" id="record-count">0件</span>
+                    </div>
+                    <div id="records-list">
+                        <div class="empty-state">まだデータが登録されていません</div>
+                    </div>
                 </div>
+            </div>
+            
+            <div class="download-section">
+                <button class="download-btn" onclick="downloadCSV()">CSVダウンロード</button>
             </div>
         </div>
         
-        <div class="download-section">
-            <button class="download-btn" onclick="downloadCSV()">CSVダウンロード</button>
+        <!-- ベクトル化処理タブ -->
+        <div id="vector-tab" class="main-tab-content">
+            <div class="vector-section">
+                <div class="vector-info">
+                    <h3>ベクトル化処理について</h3>
+                    <p>FAQ管理で作成したCSVファイルをベクトル化して、AI検索に利用できるようにします。</p>
+                    <p>処理が完了すると、JSONLファイルとBINファイルがGoogle Cloud Storageにアップロードされます。</p>
+                </div>
+                
+                <div class="upload-area">
+                    <h3>CSVファイルをアップロード</h3>
+                    <p>ベクトル化したいCSVファイルを選択してください</p>
+                    <input type="file" id="vector-csv-file" accept=".csv" style="display: none;" onchange="handleVectorFileUpload(event)">
+                    <button class="upload-btn" onclick="document.getElementById('vector-csv-file').click()">CSVファイルを選択</button>
+                    <div class="upload-info">
+                        <small>※ FAQ管理でダウンロードしたCSVファイルを使用してください</small>
+                    </div>
+                </div>
+                
+                <div id="vector-file-info" style="display: none;">
+                    <div class="upload-status upload-success">
+                        <strong>選択されたファイル:</strong> <span id="vector-file-name"></span>
+                    </div>
+                    <button class="process-btn" onclick="processVectorization()">ベクトル化処理を開始</button>
+                </div>
+                
+                <div class="loading" id="vector-loading">
+                    <div class="spinner"></div>
+                    <p>ベクトル化処理中...</p>
+                    <p>しばらくお待ちください</p>
+                </div>
+                
+                <div class="success-message" id="vector-success">
+                    <strong>処理が完了しました！</strong>
+                    <p>JSONLファイルとBINファイルがGoogle Cloud Storageにアップロードされました。</p>
+                </div>
+                
+                <div class="error-message" id="vector-error">
+                    <strong>エラーが発生しました</strong>
+                    <p id="vector-error-message"></p>
+                </div>
+            </div>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
+        // API設定
+        const PROCESS_API_URL = 'https://jsonl-bin-wbbot01-201858952361.us-central1.run.app/api/process';
+        
         const categories = {
             'basic': '基本操作・設定',
             'features': '機能詳細',
@@ -458,6 +637,16 @@
             general: []
         };
         let editingId = null;
+        let vectorCsvBlob = null;
+
+        // メインタブ切り替え
+        function switchMainTab(tab) {
+            document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.main-tab-content').forEach(c => c.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(`${tab}-tab`).classList.add('active');
+        }
 
         // タブ切り替え
         function switchTab(category) {
@@ -913,6 +1102,78 @@
                     statusDiv.remove();
                 }
             }, type === 'error' ? 5000 : 3000);
+        }
+
+        // ベクトル化タブ用の機能
+        function handleVectorFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (!file.name.toLowerCase().endsWith('.csv')) {
+                showVectorError('CSVファイルを選択してください');
+                return;
+            }
+            
+            vectorCsvBlob = file;
+            document.getElementById('vector-file-name').textContent = file.name;
+            document.getElementById('vector-file-info').style.display = 'block';
+            
+            // エラーメッセージをクリア
+            document.getElementById('vector-error').classList.remove('show');
+        }
+
+        async function processVectorization() {
+            if (!vectorCsvBlob) {
+                showVectorError('CSVファイルを選択してください');
+                return;
+            }
+            
+            const loadingEl = document.getElementById('vector-loading');
+            const successEl = document.getElementById('vector-success');
+            const errorEl = document.getElementById('vector-error');
+            
+            // UI初期化
+            loadingEl.classList.add('show');
+            successEl.classList.remove('show');
+            errorEl.classList.remove('show');
+            
+            try {
+                const formData = new FormData();
+                formData.append('file', vectorCsvBlob, vectorCsvBlob.name);
+                
+                const response = await fetch(PROCESS_API_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'ベクトル化処理に失敗しました');
+                }
+                
+                const result = await response.json();
+                
+                // 成功メッセージを表示
+                loadingEl.classList.remove('show');
+                successEl.classList.add('show');
+                
+                // ファイル選択をリセット
+                document.getElementById('vector-csv-file').value = '';
+                document.getElementById('vector-file-info').style.display = 'none';
+                vectorCsvBlob = null;
+                
+            } catch (error) {
+                loadingEl.classList.remove('show');
+                showVectorError(error.message);
+            }
+        }
+
+        function showVectorError(message) {
+            const errorEl = document.getElementById('vector-error');
+            const errorMessageEl = document.getElementById('vector-error-message');
+            
+            errorMessageEl.textContent = message;
+            errorEl.classList.add('show');
         }
     </script>
 </body>
